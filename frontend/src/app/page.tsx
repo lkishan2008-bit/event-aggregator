@@ -1,5 +1,4 @@
 import EventFeed from "@/components/EventFeed";
-import { SAMPLE_EVENTS } from "@/lib/events";
 
 export default function Home() {
   return (
@@ -11,7 +10,7 @@ export default function Home() {
         </div>
         <span className="rounded-full bg-ink px-3 py-1 text-xs font-medium text-white">Students</span>
       </header>
-      <EventFeed events={SAMPLE_EVENTS} />
+      <EventFeed />
     </main>
   );
 }
