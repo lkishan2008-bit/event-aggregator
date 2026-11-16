@@ -9,7 +9,7 @@ export default function BottomNav() {
   const active = activeTab(usePathname());
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 bg-ink md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-10 bg-ink md:hidden print:hidden">
       <ul className="mx-auto flex max-w-md justify-around py-2.5">
         {NAV_ITEMS.map((it) => (
           <li key={it.label}>

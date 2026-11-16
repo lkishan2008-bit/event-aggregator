@@ -46,6 +46,9 @@ function MyEvents() {
             {e.status === "approved" && (
               <Link href={`/organizer/checkin?event=${e.id}`} className="rounded-full bg-night px-3 py-1 text-xs font-medium text-white">Check-in</Link>
             )}
+            {e.status === "approved" && (
+              <Link href={`/organizer/report?event=${e.id}`} className="rounded-full border border-line px-3 py-1 text-xs font-medium text-night">Report</Link>
+            )}
           </div>
         </li>
       ))}

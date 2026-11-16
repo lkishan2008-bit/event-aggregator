@@ -22,6 +22,7 @@ def create_app(config_class=Config):
     from .poster import bp as poster_bp
     from .feeds import bp as feeds_bp
     from .trust import bp as trust_bp
+    from .report import bp as report_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(events_bp)
@@ -30,6 +31,7 @@ def create_app(config_class=Config):
     app.register_blueprint(poster_bp)
     app.register_blueprint(feeds_bp)
     app.register_blueprint(trust_bp)
+    app.register_blueprint(report_bp)
 
     @app.get("/api/health")
     def health():
