@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { EventItem, formatEventTime, formatPrice, posterColor } from "@/lib/events";
 
 export default function EventCard({ event, weekend }: { event: EventItem; weekend: boolean }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-line bg-white">
+    <Link href={`/events/${event.id}`} className="group block overflow-hidden rounded-2xl border border-line bg-white transition hover:border-muted">
       {/* poster placeholder: replace with <Image> once posters are uploaded */}
       <div className="relative flex aspect-[16/9] items-end p-4" style={{ background: posterColor(event) }}>
         <div className="absolute left-3 top-3 flex gap-1.5">
@@ -17,11 +18,11 @@ export default function EventCard({ event, weekend }: { event: EventItem; weeken
         {event.venue && <p>{event.venue.name} · {event.venue.city}</p>}
         <div className="flex items-center justify-between pt-2">
           <span className="text-xs">{event.going.toLocaleString("en-IN")} going · {formatPrice(event)}</span>
-          <button className="rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white hover:bg-accent-dark">
-            Register
-          </button>
+          <span className="rounded-full bg-accent px-4 py-1.5 text-sm font-medium text-white group-hover:bg-accent-dark">
+            View
+          </span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

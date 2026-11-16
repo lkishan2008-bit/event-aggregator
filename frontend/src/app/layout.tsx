@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
 import BottomNav from "@/components/BottomNav";
 import TopNav from "@/components/TopNav";
@@ -24,9 +25,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}>
       <body className="min-h-full font-sans">
-        <TopNav />
+        <Suspense fallback={null}><TopNav /></Suspense>
         <div className="mx-auto min-h-screen w-full max-w-6xl pb-24 md:pb-12">{children}</div>
-        <BottomNav />
+        <Suspense fallback={null}><BottomNav /></Suspense>
       </body>
     </html>
   );

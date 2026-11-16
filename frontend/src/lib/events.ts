@@ -16,7 +16,8 @@ export type EventItem = {
   is_free: boolean;
   poster_url: string | null;
   registration_url: string | null;
-  venue: { name: string; address: string | null; city: string; country_code: string } | null;
+  venue: { name: string; address: string | null; city: string; country_code: string; latitude?: number | null; longitude?: number | null } | null;
+  organizer?: { id: number; name: string } | null;
   going: number;
 };
 
@@ -33,6 +34,40 @@ export async function fetchEvents(): Promise<EventItem[]> {
   if (!res.ok) throw new Error(`API error ${res.status}`);
   const data = await res.json();
   return data.events as EventItem[];
+}
+
+export async function fetchEvent(id: string | number): Promise<EventItem | null> {
+  const res = await fetch(`${API_URL}/api/events/${id}`, { cache: "no-store" });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const data = await res.json();
+  return data.event as EventItem;
+}
+
+/** Google Maps directions link: uses exact coordinates if we have them, otherwise the address text. */
+export function directionsUrl(e: EventItem) {
+  const v = e.venue;
+  if (!v) return null;
+  const destination = v.latitude != null && v.longitude != null
+    ? `${v.latitude},${v.longitude}`
+    : [v.name, v.address, v.city, v.country_code].filter(Boolean).join(", ");
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+}
+
+/** "Add to Google Calendar" link with the event's start/end time. */
+export function calendarUrl(e: EventItem) {
+  const fmt = (iso: string) => iso.replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const start = fmt(e.start_utc);
+  const end = fmt(e.end_utc ?? new Date(new Date(e.start_utc).getTime() + 2 * 3600_000).toISOString());
+  const where = e.venue ? [e.venue.name, e.venue.address, e.venue.city].filter(Boolean).join(", ") : "";
+  const params = new URLSearchParams({ action: "TEMPLATE", text: e.title, dates: `${start}/${end}`, location: where, details: e.description ?? "" });
+  return `https://calendar.google.com/calendar/render?${params}`;
+}
+
+export function formatTimeRange(e: EventItem) {
+  const day = new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: e.timezone }).format(new Date(e.start_utc));
+  const time = (iso: string) => new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit", timeZone: e.timezone }).format(new Date(iso));
+  return { day, time: e.end_utc ? `${time(e.start_utc)} – ${time(e.end_utc)}` : time(e.start_utc) };
 }
 
 // Placeholder poster colours until organizers upload real posters
