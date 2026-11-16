@@ -39,6 +39,7 @@ def serialize_event(event, going=None):
             "latitude": v.latitude, "longitude": v.longitude,
         } if v else None,
         "going": going if going is not None else 0,
+        "external": bool(event.source_url and event.source_url.startswith("tm:")),  # tickets sold on the seller's site
         "updated_at": to_iso_utc(event.updated_at),
     }
 

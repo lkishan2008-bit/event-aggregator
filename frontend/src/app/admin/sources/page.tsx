@@ -6,7 +6,7 @@ import RoleGate from "@/components/RoleGate";
 import { apiFetch } from "@/lib/auth";
 
 type Source = {
-  id: number; name: string; url: string; city: string; timezone: string; auto_approve: boolean;
+  id: number; name: string; url: string; city: string; timezone: string; auto_approve: boolean; kind: "calendar" | "ticketmaster";
   organizer: { id: number; name: string; email: string };
   last_synced_at: string | null; last_result: string | null; events: number;
 };
@@ -19,6 +19,7 @@ function Sources() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState<number | "add" | null>(null);
   const [f, setF] = useState({ name: "", url: "", organizer_email: "", city: "Bengaluru", auto_approve: false });
+  const [g, setG] = useState({ city: "London", country_code: "GB", category: "music", organizer_email: "admin@example.com", auto_approve: true });
 
   const load = useCallback(() => {
     apiFetch("/api/admin/sources").then((d) => setSources(d.sources)).catch((e) => setError(e.message));
@@ -35,6 +36,20 @@ function Sources() {
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't add the feed.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function addGlobal(e: FormEvent) {
+    e.preventDefault();
+    setBusy("add");
+    setError("");
+    try {
+      await apiFetch("/api/admin/sources", { method: "POST", body: JSON.stringify({ ...g, kind: "ticketmaster" }) });
+      load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't add the source.");
     } finally {
       setBusy(null);
     }
@@ -71,7 +86,10 @@ function Sources() {
             <li key={s.id} className="rounded-2xl border border-line bg-white p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="font-display text-lg font-bold text-night">{s.name}</p>
+                  <p className="font-display text-lg font-bold text-night">
+                    {s.name}
+                    <span className="ml-2 rounded-full bg-paper px-2 py-0.5 align-middle text-xs font-medium text-muted">{s.kind === "ticketmaster" ? "Global API" : "Calendar"}</span>
+                  </p>
                   <p className="truncate text-xs text-muted">{s.url}</p>
                   <p className="mt-1 text-sm text-muted">
                     {s.events} events {"\u00b7"} as {s.organizer.name} {"\u00b7"} {s.city} {"\u00b7"} {s.auto_approve ? "goes live directly" : "admin reviews first"}
@@ -118,6 +136,32 @@ function Sources() {
           {busy === "add" ? "Importing\u2026" : "Add and import now"}
         </button>
         <p className="text-xs text-muted">Feeds are re-imported automatically every hour: new events are added, changed ones updated, cancelled ones removed.</p>
+      </form>
+
+      <form onSubmit={addGlobal} className="space-y-3 rounded-2xl border border-line bg-white p-5">
+        <h2 className="font-display text-lg font-bold text-night">Add global events (Ticketmaster)</h2>
+        <p className="text-xs text-muted">Needs TICKETMASTER_API_KEY in the backend .env (free at developer.ticketmaster.com). Tickets stay on the seller&apos;s site.</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <label className={label}>City
+            <input className={input} value={g.city} onChange={(e) => setG({ ...g, city: e.target.value })} />
+          </label>
+          <label className={label}>Country code
+            <input className={`${input} uppercase`} maxLength={2} value={g.country_code} onChange={(e) => setG({ ...g, country_code: e.target.value })} />
+          </label>
+          <label className={label}>Category (optional)
+            <input className={input} value={g.category} onChange={(e) => setG({ ...g, category: e.target.value })} placeholder="music, sports, arts" />
+          </label>
+        </div>
+        <label className={label}>Show events as (account email)
+          <input className={input} value={g.organizer_email} onChange={(e) => setG({ ...g, organizer_email: e.target.value })} />
+        </label>
+        <label className="flex items-center gap-2 text-sm text-night">
+          <input type="checkbox" checked={g.auto_approve} onChange={(e) => setG({ ...g, auto_approve: e.target.checked })} />
+          Publish without review
+        </label>
+        <button disabled={busy === "add"} className="w-full rounded-full bg-night py-3 text-sm font-medium text-white disabled:opacity-60">
+          {busy === "add" ? "Importing\u2026" : "Add and import now"}
+        </button>
       </form>
     </div>
   );

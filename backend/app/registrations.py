@@ -69,6 +69,9 @@ def register(event_id):
     if not _event_is_open(event):
         return error("This event isn't open for registration.", 404 if not event else 400)
 
+    if event.source_url and event.source_url.startswith("tm:"):
+        return error("Tickets for this event are sold on the organizer's site.", 400)
+
     user_id = int(get_jwt_identity())
     reg = Registration.query.filter_by(user_id=user_id, event_id=event_id).first()
     if reg and reg.status == "registered":

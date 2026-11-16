@@ -20,6 +20,7 @@ export type EventItem = {
   organizer?: { id: number; name: string; verified_domain?: string | null } | null;
   status?: "pending" | "approved" | "rejected" | "cancelled" | "completed";
   going: number;
+  external?: boolean;   // imported from a ticket seller: buy on their site
   red_flags?: string[]; // admin only
   reports?: number;     // admin only
 };

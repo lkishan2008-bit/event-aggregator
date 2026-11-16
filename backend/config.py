@@ -35,6 +35,9 @@ class Config:
     RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "").strip()
     RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
 
+    # Ticketmaster Discovery API key for global events (free at developer.ticketmaster.com; empty = off)
+    TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY", "").strip()
+
     # Secret for the hourly "sync event feeds" call from a cron service (leave empty to disable that URL)
     CRON_SECRET = os.getenv("CRON_SECRET", "").strip()
     # Re-import calendar feeds in the background while the server runs (minutes; 0 = off)
@@ -52,3 +55,4 @@ class TestConfig(Config):
     RAZORPAY_KEY_ID = ""
     RAZORPAY_KEY_SECRET = ""
     CRON_SECRET = ""
+    TICKETMASTER_API_KEY = ""

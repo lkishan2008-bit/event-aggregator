@@ -28,6 +28,16 @@ export default function RegisterBox({ event, onGoingChange }: { event: EventItem
 
   const primary = "block w-full rounded-full bg-accent py-3 text-center text-sm font-medium text-white hover:bg-accent-dark disabled:opacity-60";
 
+  if (event.external) {
+    return (
+      <div className="space-y-2">
+        <a href={event.registration_url ?? "#"} target="_blank" rel="noopener noreferrer" className={primary}>
+          Get tickets {"\u2197"}
+        </a>
+        <p className="text-center text-xs text-muted">Tickets are sold on the organizer&apos;s site.</p>
+      </div>
+    );
+  }
   if (!session) {
     return <Link href="/login" className={primary}>Log in to register</Link>;
   }

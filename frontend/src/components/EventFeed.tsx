@@ -26,6 +26,7 @@ export default function EventFeed() {
   const [freeOnly, setFreeOnly] = useState(false);
   const [weekendOnly, setWeekendOnly] = useState(false);
   const [query, setQuery] = useState("");
+  const [city, setCity] = useState("anywhere");
   // read the clock only in the browser (null while rendering on the server)
   const now = useSyncExternalStore(subscribe, getClientNow, () => null);
 
@@ -40,12 +41,20 @@ export default function EventFeed() {
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return events
+      .filter((e) => city === "anywhere" || e.venue?.city === city)
       .filter((e) => category === "all" || e.category === category)
       .filter((e) => !freeOnly || e.is_free)
       .filter((e) => view === "week" || !weekendOnly || (now !== null && isThisWeekend(e, now)))
       .filter((e) => !q || e.title.toLowerCase().includes(q) || (e.venue?.name ?? "").toLowerCase().includes(q))
       .sort((a, b) => a.start_utc.localeCompare(b.start_utc));
-  }, [events, category, freeOnly, weekendOnly, query, now, view]);
+  }, [events, category, freeOnly, weekendOnly, query, now, view, city]);
+
+  // cities that have events, busiest first
+  const cities = useMemo(() => {
+    const counts = new Map<string, number>();
+    events.forEach((e) => e.venue && counts.set(e.venue.city, (counts.get(e.venue.city) ?? 0) + 1));
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  }, [events]);
 
   // "This week": events grouped under each of the next 7 days
   const week = useMemo(() => {
@@ -64,6 +73,15 @@ export default function EventFeed() {
   return (
     <section>
       <div className="mb-3 flex flex-wrap items-center gap-3">
+        <select
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          aria-label="City"
+          className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-night outline-none focus:border-ink"
+        >
+          <option value="anywhere">Anywhere</option>
+          {cities.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
+        </select>
         <div className="flex gap-1 rounded-full border border-line bg-white p-1">
           <button className={tab(view === "week")} onClick={() => setView("week")}>This week</button>
           <button className={tab(view === "all")} onClick={() => setView("all")}>All upcoming</button>

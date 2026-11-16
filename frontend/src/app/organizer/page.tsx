@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import RoleGate from "@/components/RoleGate";
 import StatusBadge from "@/components/StatusBadge";
+import OrganizerFeeds from "@/components/OrganizerFeeds";
 import VerifyOrganizer from "@/components/VerifyOrganizer";
 import { apiFetch } from "@/lib/auth";
 import { EventItem, formatEventTime } from "@/lib/events";
@@ -67,6 +68,7 @@ export default function OrganizerPage() {
             </Link>
           </div>
           <VerifyOrganizer />
+          <OrganizerFeeds />
           <p className="mb-4 text-sm text-muted">New events from unverified organizers are checked by an admin before they appear in the feed.</p>
           <MyEvents />
         </main>
