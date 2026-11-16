@@ -46,11 +46,9 @@ export default function EventFeed() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search hackathons, fests, venues"
-        className="mb-3 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-ink"
-      />
+        className="mb-3 w-full rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-ink md:max-w-xl" />
 
-      <div className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4">
-        <button className={chip(weekendOnly)} onClick={() => setWeekendOnly(!weekendOnly)}>This weekend</button>
+      <div className="no-scrollbar -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">        <button className={chip(weekendOnly)} onClick={() => setWeekendOnly(!weekendOnly)}>This weekend</button>
         <button className={chip(freeOnly)} onClick={() => setFreeOnly(!freeOnly)}>Free</button>
         {CATEGORIES.map((c) => (
           <button key={c.key} className={chip(category === c.key)} onClick={() => setCategory(c.key)}>
@@ -60,8 +58,8 @@ export default function EventFeed() {
       </div>
 
       {status === "loading" && (
-        <div className="space-y-4">
-          {[0, 1].map((i) => <div key={i} className="h-72 animate-pulse rounded-2xl bg-line/60" />)}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[0, 1, 2].map((i) => <div key={i} className="h-72 animate-pulse rounded-2xl bg-line/60" />)}
         </div>
       )}
 
@@ -72,13 +70,12 @@ export default function EventFeed() {
       )}
 
       {status === "ready" && (
-        <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((e) => (
             <EventCard key={e.id} event={e} weekend={now !== null && isThisWeekend(e, now)} />
           ))}
           {visible.length === 0 && (
-            <p className="rounded-2xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">
-              No events match these filters. Try removing one.
+            <p className="col-span-full rounded-2xl border border-dashed border-line px-4 py-10 text-center text-sm text-muted">              No events match these filters. Try removing one.
             </p>
           )}
         </div>

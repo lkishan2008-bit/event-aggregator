@@ -15,6 +15,8 @@ export type User = {
     country_code: string | null;
     city: string | null;
     timezone: string | null;
+    email_verified?: boolean;
+    created_at?: string | null;
 };
 
 type Session = { token: string; user: User };
@@ -100,6 +102,29 @@ export function resendOtp(challenge: OtpChallenge) {
     return post("resend-otp", { email: challenge.email, purpose: challenge.purpose });
 }
 
+/** Edit your own profile (name, city, country). Needs to be logged in. */
+export async function updateProfile(fields: { name?: string; city?: string; country_code?: string }) {
+    const session = read();
+    if (!session) throw new Error("Log in first.");
+    let res: Response;
+    try {
+        res = await fetch(`${API_URL}/api/auth/me`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.token}` },
+            body: JSON.stringify(fields),
+        });
+    } catch {
+        throw new Error("Couldn't reach the server. Check that the backend is running.");
+    }
+    if (res.status === 401) {
+        save(null); // login expired
+        throw new Error("Your session expired. Log in again.");
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error ?? "Something went wrong. Try again.");
+    save({ token: session.token, user: data.user });
+    return data.user as User;
+}
 /** Same rules as the backend: 8+ chars, upper, lower, number, symbol. */
 export const PASSWORD_RULES = [
     { label: "At least 8 characters", test: (p: string) => p.length >= 8 },

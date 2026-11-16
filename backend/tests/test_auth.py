@@ -93,3 +93,14 @@ def test_duplicate_and_bad_login(client, auth):
     assert client.post("/api/auth/login", json={"email": "a@b.co", "password": "Wrong@123"}).status_code == 401
     r = client.post("/api/auth/register", json={"name": "A", "email": "z@y.co", "password": STRONG, "role": "admin"})
     assert r.status_code == 400
+    
+
+def test_update_profile(client, auth):
+    h = auth.signup("p@x.co")
+    r = client.patch("/api/auth/me", json={"name": "Kishan L", "city": "Bengaluru", "country_code": "in"}, headers=h)
+    assert r.status_code == 200
+    u = r.get_json()["user"]
+    assert (u["name"], u["city"], u["country_code"]) == ("Kishan L", "Bengaluru", "IN")
+    assert client.patch("/api/auth/me", json={"name": ""}, headers=h).status_code == 400
+    assert client.patch("/api/auth/me", json={"country_code": "IND"}, headers=h).status_code == 400
+    assert client.patch("/api/auth/me", json={"name": "X"}).status_code == 401

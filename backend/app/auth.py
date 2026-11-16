@@ -141,6 +141,33 @@ def resend():
     return jsonify({"sent": True})
 
 
+@bp.patch("/me")
+@jwt_required()
+def update_me():
+    """Edit your own profile: name, city, country."""
+    user = db.session.get(User, int(get_jwt_identity()))
+    if not user:
+        return _error("User not found.", 404)
+    data = request.get_json(silent=True) or {}
+
+    if "name" in data:
+        name = (data.get("name") or "").strip()
+        if not name or len(name) > 120:
+            return _error("Name must be 1 to 120 characters.")
+        user.name = name
+    if "city" in data:
+        city = (data.get("city") or "").strip()
+        if len(city) > 120:
+            return _error("City name is too long.")
+        user.city = city or None
+    if "country_code" in data:
+        cc = (data.get("country_code") or "").strip().upper()
+        if cc and (len(cc) != 2 or not cc.isalpha()):
+            return _error("Country must be a 2-letter code, e.g. IN or US.")
+        user.country_code = cc or None
+
+    db.session.commit()
+    return jsonify({"user": user.to_dict()})
 @bp.get("/me")
 @jwt_required()
 def me():

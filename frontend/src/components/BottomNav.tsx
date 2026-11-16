@@ -2,25 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { activeTab, NAV_ITEMS } from "@/lib/nav";
 
-const items = [
-  { label: "Home", href: "/", icon: "M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" },
-  { label: "Explore", href: "/", icon: "M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm10 17-5-5" },
-  { label: "Saved", href: "/", icon: "M6 3h12v18l-6-4-6 4z" },
-  { label: "Passes", href: "/", icon: "M3 7h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4z" },
-  { label: "Profile", href: "/profile", icon: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 9a8 8 0 0 1 16 0" },
-];
-
+/** Phone navigation: fixed bar at the bottom. Hidden on laptops (md and up). */
 export default function BottomNav() {
-  const pathname = usePathname();
-  const activeLabel = pathname.startsWith("/profile") || pathname === "/login" || pathname === "/signup" ? "Profile" : "Home";
+  const active = activeTab(usePathname());
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 bg-ink">
+    <nav className="fixed inset-x-0 bottom-0 z-10 bg-ink md:hidden">
       <ul className="mx-auto flex max-w-md justify-around py-2.5">
-        {items.map((it) => (
+        {NAV_ITEMS.map((it) => (
           <li key={it.label}>
-            <Link href={it.href} className={`flex flex-col items-center gap-1 text-[11px] ${it.label === activeLabel ? "text-accent" : "text-white/70 hover:text-white"}`}>
+            <Link href={it.href} className={`flex flex-col items-center gap-1 text-[11px] ${it.label === active ? "text-accent" : "text-white/70 hover:text-white"}`}>
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d={it.icon} />
               </svg>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import BottomNav from "@/components/BottomNav";
+import TopNav from "@/components/TopNav";
 import "./globals.css";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
@@ -23,7 +24,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}>
       <body className="min-h-full font-sans">
-        <div className="mx-auto min-h-screen max-w-md pb-24">{children}</div>
+        <TopNav />
+        <div className="mx-auto min-h-screen w-full max-w-6xl pb-24 md:pb-12">{children}</div>
         <BottomNav />
       </body>
     </html>
