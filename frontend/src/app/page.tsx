@@ -1,4 +1,5 @@
 import EventFeed from "@/components/EventFeed";
+import UserBadge from "@/components/UserBadge";
 
 export default function Home() {
   return (
@@ -8,7 +9,7 @@ export default function Home() {
           <p className="text-sm text-muted">Bengaluru</p>
           <h1 className="font-display text-3xl font-bold text-night">What&apos;s on</h1>
         </div>
-        <span className="rounded-full bg-ink px-3 py-1 text-xs font-medium text-white">Students</span>
+        <UserBadge />
       </header>
       <EventFeed />
     </main>
