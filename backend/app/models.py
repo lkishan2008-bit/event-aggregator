@@ -120,6 +120,25 @@ class Registration(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
 
+class EventSource(db.Model):
+    """A public calendar feed (iCal / .ics link) that is imported automatically every hour."""
+    __tablename__ = "event_sources"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    url = db.Column(db.String(1000), nullable=False)
+    organizer_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)  # imported events belong to this account
+    city = db.Column(db.String(120), nullable=False, default="Bengaluru")
+    country_code = db.Column(db.String(2), nullable=False, default="IN")
+    timezone = db.Column(db.String(64), nullable=False, default="Asia/Kolkata")  # for times without a timezone
+    auto_approve = db.Column(db.Boolean, default=False, nullable=False)          # trusted feeds go live directly
+    last_synced_at = db.Column(db.DateTime)
+    last_result = db.Column(db.String(300))
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    organizer = db.relationship("User")
+
+
 class OtpCode(db.Model):
     """A one-time code emailed to the user. Only a hash of the code is stored."""
     __tablename__ = "otp_codes"

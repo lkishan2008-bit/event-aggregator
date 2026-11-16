@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import PosterFill, { PosterFields } from "@/components/PosterFill";
 import RoleGate from "@/components/RoleGate";
 import { apiFetch } from "@/lib/auth";
 
@@ -21,6 +22,23 @@ function SubmitForm() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
+
+  // copy what the poster scan found into the form (only the fields it found)
+  function fillFromPoster(p: PosterFields) {
+    setF((cur) => ({
+      ...cur,
+      ...(p.title && { title: p.title }),
+      ...(p.category && CATEGORY_OPTIONS.some(([v]) => v === p.category) && { category: p.category }),
+      ...(p.description && { description: p.description }),
+      ...(p.date && { date: p.date }),
+      ...(p.start && { start: p.start }),
+      ...(p.end && { end: p.end }),
+      ...(p.venue && { venue: p.venue }),
+      ...(p.city && { city: p.city }),
+      ...(p.price !== undefined && { price: String(p.price) }),
+      ...(p.link && { link: p.link }),
+    }));
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -67,11 +85,15 @@ function SubmitForm() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 pt-6 md:px-6 md:pt-10">
-      <Link href="/organizer" className="text-sm text-muted hover:text-night">← Your events</Link>
+      <Link href="/organizer" className="text-sm text-muted hover:text-night">{"\u2190"} Your events</Link>
       <h1 className="mt-3 font-display text-3xl font-bold text-night">Submit an event</h1>
       <p className="mt-1 text-sm text-muted">An admin will review it before it appears in the feed.</p>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-5" noValidate>
+      <div className="mt-6">
+        <PosterFill onFill={fillFromPoster} />
+      </div>
+
+      <form onSubmit={onSubmit} className="mt-5 space-y-5" noValidate>
         <section className="space-y-3 rounded-2xl border border-line bg-white p-5">
           <label className={label}>Event title
             <input className={input} value={f.title} onChange={set("title")} placeholder="HackRV 4.0" />
@@ -120,7 +142,7 @@ function SubmitForm() {
 
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button type="submit" disabled={busy} className="w-full rounded-full bg-accent py-3 text-sm font-medium text-white hover:bg-accent-dark disabled:opacity-60">
-          {busy ? "Submitting…" : "Submit for review"}
+          {busy ? "Submitting\u2026" : "Submit for review"}
         </button>
       </form>
     </main>

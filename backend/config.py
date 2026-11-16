@@ -35,9 +35,15 @@ class Config:
     RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "").strip()
     RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
 
+    # Secret for the hourly "sync event feeds" call from a cron service (leave empty to disable that URL)
+    CRON_SECRET = os.getenv("CRON_SECRET", "").strip()
+    # Re-import calendar feeds in the background while the server runs (minutes; 0 = off)
+    FEED_SYNC_MINUTES = int(os.getenv("FEED_SYNC_MINUTES", "60"))
+
     CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
 
 
 class TestConfig(Config):
     TESTING = True
+    FEED_SYNC_MINUTES = 0
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"

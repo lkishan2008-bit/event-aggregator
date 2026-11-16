@@ -95,7 +95,7 @@ export default function AdminPage() {
     <RoleGate roles={["admin"]}>
       {() => (
         <main className="mx-auto max-w-4xl px-4 pt-6 md:px-6 md:pt-10">
-          <h1 className="font-display text-3xl font-bold text-night">Review events</h1>
+          <div className="flex flex-wrap items-end justify-between gap-3"><h1 className="font-display text-3xl font-bold text-night">Review events</h1><Link href="/admin/sources" className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-night hover:border-muted">Event feeds</Link></div>
           <p className="mb-5 mt-1 text-sm text-muted">Approve events to publish them in the feed. Rejected events stay hidden.</p>
           <Review />
         </main>
