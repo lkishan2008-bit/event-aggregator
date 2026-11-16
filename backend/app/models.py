@@ -34,6 +34,7 @@ class User(db.Model):
     city = db.Column(db.String(120))
     timezone = db.Column(db.String(64))         # IANA, e.g. "Asia/Kolkata"
     language = db.Column(db.String(10), default="en")
+        email_verified = db.Column(db.Boolean, default=False, nullable=False)
 
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
@@ -53,6 +54,7 @@ class User(db.Model):
             "city": self.city,
             "timezone": self.timezone,
             "language": self.language,
+                        "email_verified": bool(self.email_verified),
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -113,3 +115,19 @@ class Registration(db.Model):
     qr_token = db.Column(db.String(64), unique=True, default=lambda: secrets.token_urlsafe(24))
     checked_in_at = db.Column(db.DateTime(timezone=True))   # set when QR is scanned at the gate
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    
+
+class OtpCode(db.Model):
+    """A one-time code emailed to the user. Only a hash of the code is stored."""
+    __tablename__ = "otp_codes"
+
+    PURPOSES = ("signup", "login")
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    purpose = db.Column(db.String(20), nullable=False)
+    code_hash = db.Column(db.String(255), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)   # UTC
+    attempts = db.Column(db.Integer, default=0, nullable=False)
+    used = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False)   # UTC

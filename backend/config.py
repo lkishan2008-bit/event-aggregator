@@ -27,6 +27,10 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-change-me-in-env-file-32b")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
 
+    # Amazon SES (leave SES_SENDER empty to print emails in the terminal instead)
+    SES_SENDER = os.getenv("SES_SENDER", "").strip()
+    AWS_REGION = os.getenv("AWS_REGION", "ap-south-1")
+
     CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
 
 
