@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import RegisterBox from "@/components/RegisterBox";
 import ReportEvent from "@/components/ReportEvent";
+import SaveButton from "@/components/SaveButton";
 import { calendarUrl, directionsUrl, EventItem, fetchEvent, formatPrice, formatTimeRange, posterColor } from "@/lib/events";
 
 export default function EventDetail({ id }: { id: string }) {
@@ -112,6 +113,7 @@ export default function EventDetail({ id }: { id: string }) {
           </div>
 
           <RegisterBox event={event} onGoingChange={(going) => setEvent({ ...event, going })} />
+          <SaveButton eventId={event.id} variant="full" />
           {event.registration_url && (
             <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="block w-full rounded-full border border-line py-3 text-center text-sm font-medium text-night hover:border-muted">
               Organizer&apos;s website

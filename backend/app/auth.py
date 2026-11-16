@@ -175,3 +175,37 @@ def me():
     if not user:
         return _error("User not found.", 404)
     return jsonify({"user": user.to_dict()})
+
+@bp.post("/forgot")
+def forgot_password():
+    """Body: {"email"}. Emails a reset code. Same answer whether or not the account exists (no account fishing)."""
+    email = str((request.get_json(silent=True) or {}).get("email", "")).strip().lower()
+    user = User.query.filter_by(email=email).first()
+    if user:
+        wait = seconds_until_resend(user, "reset")
+        if wait:
+            return _error(f"Wait {wait} seconds before asking for a new code.", 429)
+        issue_otp(user, "reset")
+    return jsonify({"sent": True, "email": email})
+
+
+@bp.post("/reset")
+def reset_password():
+    """Body: {"email", "code", "password"}. Sets a new password if the emailed code is right."""
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+    code = str(data.get("code", "")).strip()
+    password = str(data.get("password", ""))
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return _error("Wrong code or email.")
+    problems = password_problems(password)
+    if problems:
+        return _error("Password needs " + ", ".join(problems) + ".")
+    problem = verify_otp(user, "reset", code)
+    if problem:
+        return _error(problem)
+    user.set_password(password)
+    user.email_verified = True  # they proved they own the email
+    db.session.commit()
+    return jsonify({"reset": True})

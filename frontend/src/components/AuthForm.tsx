@@ -194,7 +194,10 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 </button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-muted">
+            {!isSignup && (
+        <p className="mt-4 text-center text-sm"><Link href="/forgot" className="text-muted underline hover:text-night">Forgot password?</Link></p>
+      )}
+      <p className="mt-6 text-center text-sm text-muted">
                 {isSignup ? "Already have an account? " : "New here? "}
                 <Link href={isSignup ? "/login" : "/signup"} className="font-medium text-night underline">
                     {isSignup ? "Log in" : "Create an account"}

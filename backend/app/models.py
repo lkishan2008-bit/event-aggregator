@@ -166,6 +166,17 @@ class EventReport(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
 
+class SavedEvent(db.Model):
+    """A student bookmarked an event (the Saved tab)."""
+    __tablename__ = "saved_events"
+    __table_args__ = (db.UniqueConstraint("user_id", "event_id", name="uq_saved_user_event"),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+
 class OtpCode(db.Model):
     """A one-time code emailed to the user. Only a hash of the code is stored."""
     __tablename__ = "otp_codes"

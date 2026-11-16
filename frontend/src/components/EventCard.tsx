@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SaveButton from "@/components/SaveButton";
 import { EventItem, formatEventTime, formatPrice, posterColor } from "@/lib/events";
 
 export default function EventCard({ event, weekend }: { event: EventItem; weekend: boolean }) {
@@ -6,6 +7,7 @@ export default function EventCard({ event, weekend }: { event: EventItem; weeken
     <Link href={`/events/${event.id}`} className="group block overflow-hidden rounded-2xl border border-line bg-white transition hover:border-muted">
       {/* poster placeholder: replace with <Image> once posters are uploaded */}
       <div className="relative flex aspect-[16/9] items-end p-4" style={{ background: posterColor(event) }}>
+        <div className="absolute right-3 top-3"><SaveButton eventId={event.id} /></div>
         <div className="absolute left-3 top-3 flex gap-1.5">
           {event.is_free && <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-white">Free</span>}
           {weekend && <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium text-white">This weekend</span>}

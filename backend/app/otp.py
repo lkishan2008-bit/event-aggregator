@@ -43,7 +43,7 @@ def issue_otp(user, purpose, to=None):
     db.session.commit()
 
     action = {"signup": "finish creating your account", "login": "log in",
-              "org_verify": "verify your organizer account"}.get(purpose, "continue")
+              "org_verify": "verify your organizer account", "reset": "reset your password"}.get(purpose, "continue")
     send_email(
         to or user.email,
         f"Your verification code: {code}",
