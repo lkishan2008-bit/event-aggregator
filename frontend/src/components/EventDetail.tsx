@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import RegisterBox from "@/components/RegisterBox";
 import { calendarUrl, directionsUrl, EventItem, fetchEvent, formatPrice, formatTimeRange, posterColor } from "@/lib/events";
 
 export default function EventDetail({ id }: { id: string }) {
@@ -102,14 +103,11 @@ export default function EventDetail({ id }: { id: string }) {
             <span className="text-sm text-muted">{event.going.toLocaleString("en-IN")} going</span>
           </div>
 
-          {event.registration_url ? (
-            <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="block w-full rounded-full bg-accent py-3 text-center text-sm font-medium text-white hover:bg-accent-dark">
-              Register on organizer&apos;s site
+          <RegisterBox eventId={event.id} onGoingChange={(going) => setEvent({ ...event, going })} />
+          {event.registration_url && (
+            <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="block w-full rounded-full border border-line py-3 text-center text-sm font-medium text-night hover:border-muted">
+              Organizer&apos;s website
             </a>
-          ) : (
-            <button disabled className="w-full cursor-not-allowed rounded-full bg-accent/60 py-3 text-sm font-medium text-white" title="Coming in the next update">
-              Register (coming soon)
-            </button>
           )}
 
           {maps && (

@@ -17,9 +17,11 @@ def create_app(config_class=Config):
     from . import models  # noqa: F401  (registers models with SQLAlchemy)
     from .auth import bp as auth_bp
     from .events import bp as events_bp
+    from .registrations import bp as registrations_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(events_bp)
+    app.register_blueprint(registrations_bp)
 
     @app.get("/api/health")
     def health():

@@ -66,9 +66,14 @@ export function calendarUrl(e: EventItem) {
 }
 
 export function formatTimeRange(e: EventItem) {
-  const day = new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: e.timezone }).format(new Date(e.start_utc));
-  const time = (iso: string) => new Intl.DateTimeFormat("en-IN", { hour: "numeric", minute: "2-digit", timeZone: e.timezone }).format(new Date(iso));
-  return { day, time: e.end_utc ? `${time(e.start_utc)} – ${time(e.end_utc)}` : time(e.start_utc) };
+  const fmt = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat("en-IN", { ...opts, timeZone: e.timezone }).format(new Date(iso));
+  const day = fmt(e.start_utc, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const time = (iso: string) => fmt(iso, { hour: "numeric", minute: "2-digit" });
+  if (!e.end_utc) return { day, time: time(e.start_utc) };
+  const sameDay = fmt(e.start_utc, { dateStyle: "short" }) === fmt(e.end_utc, { dateStyle: "short" });
+  const endText = sameDay ? time(e.end_utc) : `${fmt(e.end_utc, { weekday: "short", day: "numeric", month: "short" })}, ${time(e.end_utc)}`;
+  return { day, time: `${time(e.start_utc)} – ${endText}` };
 }
 
 // Placeholder poster colours until organizers upload real posters
