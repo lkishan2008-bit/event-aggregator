@@ -11,9 +11,9 @@ from app.models import Event, User, Venue
 from app.utils import utcnow_naive
 
 ACCOUNTS = [
-    ("Admin", "admin@example.com", "admin12345", "admin"),
-    ("RVCE Tech Club", "organizer@example.com", "organizer123", "organizer"),
-    ("Demo Student", "student@example.com", "student123", "student"),
+    ("Admin", "admin@example.com", "Admin@12345", "admin"),
+    ("RVCE Tech Club", "organizer@example.com", "Organizer@123", "organizer"),
+    ("Demo Student", "student@example.com", "Student@123", "student"),
 ]
 
 # (title, category, days from now, local hour, price, venue, city)
@@ -38,7 +38,7 @@ def run():
             user = User.query.filter_by(email=email).first()
             if not user:
                 user = User(name=name, email=email, role=role, country_code="IN",
-                            city="Bengaluru", timezone="Asia/Kolkata")
+                            city="Bengaluru", timezone="Asia/Kolkata",email_verified=True)
                 user.set_password(password)
                 db.session.add(user)
                 print(f"created {role}: {email} / {password}")

@@ -5,6 +5,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 
 from .extensions import db
 from .models import User
+from .otp import issue_otp, seconds_until_resend, verify_otp
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -16,8 +17,30 @@ def _error(message, status=400):
     return jsonify({"error": message}), status
 
 
+def password_problems(password):
+    """List what's missing from a password. Empty list = strong enough."""
+    problems = []
+    if len(password) < 8:
+        problems.append("at least 8 characters")
+    if not re.search(r"[A-Z]", password):
+        problems.append("an uppercase letter")
+    if not re.search(r"[a-z]", password):
+        problems.append("a lowercase letter")
+    if not re.search(r"\d", password):
+        problems.append("a number")
+    if not re.search(r"[^A-Za-z0-9]", password):
+        problems.append("a symbol")
+    return problems
+
+
+def _token_response(user):
+    token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
+    return jsonify({"user": user.to_dict(), "access_token": token})
+
+
 @bp.post("/register")
 def register():
+    """Step 1 of signup: create the account (unverified) and email a code."""
     data = request.get_json(silent=True) or {}
     name = (data.get("name") or "").strip()
     email = (data.get("email") or "").strip().lower()
@@ -28,32 +51,36 @@ def register():
         return _error("Enter your name.")
     if not EMAIL_RE.match(email):
         return _error("Enter a valid email address.")
-    if len(password) < 8:
-        return _error("Password must be at least 8 characters.")
+    problems = password_problems(password)
+    if problems:
+        return _error("Password needs " + ", ".join(problems) + ".")
     if role not in SIGNUP_ROLES:
         return _error("Role must be student or organizer.")
-    if User.query.filter_by(email=email).first():
+
+    user = User.query.filter_by(email=email).first()
+    if user and user.email_verified:
         return _error("An account with this email already exists.", 409)
 
-    user = User(
-        name=name,
-        email=email,
-        role=role,
-        country_code=(data.get("country_code") or "").upper()[:2] or None,
-        city=data.get("city"),
-        timezone=data.get("timezone"),
-        language=data.get("language", "en"),
-    )
+    if user:
+        # signed up before but never verified: update details and send a fresh code
+        user.name, user.role = name, role
+    else:
+        user = User(name=name, email=email, role=role, email_verified=False)
+        db.session.add(user)
+    user.country_code = (data.get("country_code") or "").upper()[:2] or None
+    user.city = data.get("city")
+    user.timezone = data.get("timezone")
+    user.language = data.get("language", "en")
     user.set_password(password)
-    db.session.add(user)
     db.session.commit()
 
-    token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
-    return jsonify({"user": user.to_dict(), "access_token": token}), 201
+    issue_otp(user, "signup")
+    return jsonify({"otp_required": True, "purpose": "signup", "email": email}), 201
 
 
 @bp.post("/login")
 def login():
+    """Step 1 of login: check the password, then email a code."""
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
     password = data.get("password") or ""
@@ -62,8 +89,56 @@ def login():
     if not user or not user.check_password(password):
         return _error("Email or password is incorrect.", 401)
 
-    token = create_access_token(identity=str(user.id), additional_claims={"role": user.role})
-    return jsonify({"user": user.to_dict(), "access_token": token})
+    purpose = "login" if user.email_verified else "signup"
+    wait = seconds_until_resend(user, purpose)
+    if not wait:
+        issue_otp(user, purpose)
+    return jsonify({"otp_required": True, "purpose": purpose, "email": email})
+
+
+@bp.post("/verify-otp")
+def verify():
+    """Step 2: check the emailed code and log the user in."""
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    code = (data.get("code") or "").strip()
+    purpose = data.get("purpose")
+
+    if purpose not in ("signup", "login"):
+        return _error("purpose must be signup or login.")
+    if not re.fullmatch(r"\d{6}", code):
+        return _error("Enter the 6-digit code from your email.")
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return _error("No active code. Request a new one.")
+
+    problem = verify_otp(user, purpose, code)
+    if problem:
+        return _error(problem)
+
+    if purpose == "signup":
+        user.email_verified = True
+        db.session.commit()
+    return _token_response(user)
+
+
+@bp.post("/resend-otp")
+def resend():
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    purpose = data.get("purpose")
+    if purpose not in ("signup", "login"):
+        return _error("purpose must be signup or login.")
+
+    user = User.query.filter_by(email=email).first()
+    # same answer whether or not the account exists, so emails can't be probed
+    if user and (purpose == "login") == bool(user.email_verified):
+        wait = seconds_until_resend(user, purpose)
+        if wait:
+            return _error(f"Wait {wait} seconds before requesting another code.", 429)
+        issue_otp(user, purpose)
+    return jsonify({"sent": True})
 
 
 @bp.get("/me")

@@ -34,7 +34,7 @@ class User(db.Model):
     city = db.Column(db.String(120))
     timezone = db.Column(db.String(64))         # IANA, e.g. "Asia/Kolkata"
     language = db.Column(db.String(10), default="en")
-        email_verified = db.Column(db.Boolean, default=False, nullable=False)
+    email_verified = db.Column(db.Boolean, default=False, nullable=False)
 
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 

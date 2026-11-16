@@ -1,38 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
-import pytest
-
-from app import create_app
 from app.extensions import db
-from app.models import User
-from config import TestConfig
 
 
 def iso(days, hours=0):
     return (datetime.now(timezone.utc) + timedelta(days=days, hours=hours)).isoformat()
-
-
-@pytest.fixture
-def client():
-    app = create_app(TestConfig)
-    with app.app_context():
-        db.create_all()
-        admin = User(name="Admin", email="admin@x.co", role="admin")
-        admin.set_password("admin12345")
-        db.session.add(admin)
-        db.session.commit()
-        yield app.test_client()
-        db.drop_all()
-
-
-def login(client, email, password):
-    r = client.post("/api/auth/login", json={"email": email, "password": password})
-    return {"Authorization": f"Bearer {r.get_json()['access_token']}"}
-
-
-def signup(client, email, role):
-    r = client.post("/api/auth/register", json={"name": "U", "email": email, "password": "secret123", "role": role})
-    return {"Authorization": f"Bearer {r.get_json()['access_token']}"}
 
 
 def event_body(**over):
@@ -45,9 +17,9 @@ def event_body(**over):
     return body
 
 
-def test_full_flow_submit_approve_list(client):
-    org = signup(client, "org@x.co", "organizer")
-    admin = login(client, "admin@x.co", "admin12345")
+def test_full_flow_submit_approve_list(client, auth):
+    org = auth.signup("org@x.co", "organizer")
+    admin = auth.login("admin@x.co", "Admin@12345")
 
     r = client.post("/api/events", json=event_body(), headers=org)
     assert r.status_code == 201
@@ -68,8 +40,8 @@ def test_full_flow_submit_approve_list(client):
     assert feed["total"] == 1 and feed["events"][0]["venue"]["city"] == "Bengaluru"
 
 
-def test_admin_events_auto_approved_and_filters(client):
-    admin = login(client, "admin@x.co", "admin12345")
+def test_admin_events_auto_approved_and_filters(client, auth):
+    admin = auth.login("admin@x.co", "Admin@12345")
     client.post("/api/events", json=event_body(title="Free Hack"), headers=admin)
     client.post("/api/events", json=event_body(title="Paid Fest", category="fest", price_amount=199), headers=admin)
     client.post("/api/events", json=event_body(title="Tokyo Meetup", category="meetup", timezone="Asia/Tokyo",
@@ -84,9 +56,9 @@ def test_admin_events_auto_approved_and_filters(client):
     assert client.get("/api/events?q=hack").get_json()["total"] == 1
 
 
-def test_permissions_and_validation(client):
-    student = signup(client, "s@x.co", "student")
-    org = signup(client, "o@x.co", "organizer")
+def test_permissions_and_validation(client, auth):
+    student = auth.signup("s@x.co", "student")
+    org = auth.signup("o@x.co", "organizer")
 
     assert client.post("/api/events", json=event_body()).status_code == 401
     assert client.post("/api/events", json=event_body(), headers=student).status_code == 403
@@ -107,8 +79,8 @@ def test_permissions_and_validation(client):
         assert client.post("/api/events", json=body, headers=org).status_code == 400, body
 
 
-def test_past_events_hidden(client):
-    admin = login(client, "admin@x.co", "admin12345")
+def test_past_events_hidden(client, auth):
+    admin = auth.login("admin@x.co", "Admin@12345")
     client.post("/api/events", json=event_body(), headers=admin)
     with client.application.app_context():
         from app.models import Event
