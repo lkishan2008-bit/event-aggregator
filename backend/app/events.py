@@ -6,6 +6,7 @@ from sqlalchemy import func, or_
 
 from .extensions import db
 from .models import Event, Registration, Venue
+from .trust import red_flags, report_count, verified_domain
 from .utils import error, parse_utc, roles_required, to_iso_utc, utcnow_naive, valid_timezone
 
 bp = Blueprint("events", __name__, url_prefix="/api")
@@ -29,7 +30,10 @@ def serialize_event(event, going=None):
         "poster_url": event.poster_url,
         "registration_url": event.registration_url,
         "status": event.status,
-        "organizer": {"id": event.organizer.id, "name": event.organizer.name} if event.organizer else None,
+        "organizer": {
+            "id": event.organizer.id, "name": event.organizer.name,
+            "verified_domain": verified_domain(event.organizer.id),
+        } if event.organizer else None,
         "venue": {
             "name": v.name, "address": v.address, "city": v.city, "country_code": v.country_code,
             "latitude": v.latitude, "longitude": v.longitude,
@@ -182,6 +186,10 @@ def create_event():
         status="approved" if role == "admin" else "pending",
     )
     db.session.add(event)
+    db.session.flush()
+    # verified organizers skip the queue when the automatic checks find nothing suspicious
+    if role != "admin" and verified_domain(event.organizer_id) and not red_flags(event):
+        event.status = "approved"
     db.session.commit()
     return jsonify({"event": serialize_event(event)}), 201
 
@@ -206,7 +214,9 @@ def admin_list():
     if status not in Event.STATUSES:
         return error(f"status must be one of: {', '.join(Event.STATUSES)}.")
     events = Event.query.filter_by(status=status).order_by(Event.created_at.asc()).all()
-    return jsonify({"events": [serialize_event(e) for e in events]})
+    return jsonify({"events": [
+        {**serialize_event(e), "red_flags": red_flags(e), "reports": report_count(e.id)} for e in events
+    ]})
 
 
 def _set_status(event_id, new_status):

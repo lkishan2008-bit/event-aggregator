@@ -17,9 +17,11 @@ export type EventItem = {
   poster_url: string | null;
   registration_url: string | null;
   venue: { name: string; address: string | null; city: string; country_code: string; latitude?: number | null; longitude?: number | null } | null;
-  organizer?: { id: number; name: string } | null;
+  organizer?: { id: number; name: string; verified_domain?: string | null } | null;
   status?: "pending" | "approved" | "rejected" | "cancelled" | "completed";
   going: number;
+  red_flags?: string[]; // admin only
+  reports?: number;     // admin only
 };
 
 export const CATEGORIES = [
@@ -73,7 +75,7 @@ export function formatTimeRange(e: EventItem) {
   if (!e.end_utc) return { day, time: time(e.start_utc) };
   const sameDay = fmt(e.start_utc, { dateStyle: "short" }) === fmt(e.end_utc, { dateStyle: "short" });
   const endText = sameDay ? time(e.end_utc) : `${fmt(e.end_utc, { weekday: "short", day: "numeric", month: "short" })}, ${time(e.end_utc)}`;
-  return { day, time: `${time(e.start_utc)} – ${endText}` };
+  return { day, time: `${time(e.start_utc)} \u2013 ${endText}` };
 }
 
 // Placeholder poster colours until organizers upload real posters
@@ -94,7 +96,7 @@ export function formatPrice(e: EventItem) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: e.currency, maximumFractionDigits: 0 }).format(e.price_amount);
 }
 
-/** true if the event starts between now and the end of this coming weekend (Sat–Sun) */
+/** true if the event starts between now and the end of this coming weekend (Sat\u2013Sun) */
 export function isThisWeekend(e: EventItem, now: number) {
   const start = new Date(e.start_utc).getTime();
   const d = new Date(now);
@@ -102,4 +104,9 @@ export function isThisWeekend(e: EventItem, now: number) {
   const saturday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + daysToSunday - 1).getTime();
   const endOfSunday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + daysToSunday, 23, 59, 59).getTime();
   return start >= Math.max(now, saturday) && start <= endOfSunday;
+}
+
+/** "YYYY-MM-DD" of a moment in a timezone (used to group events by day). */
+export function dayKey(iso: string | number, timeZone?: string) {
+  return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", day: "2-digit", timeZone }).format(new Date(iso));
 }

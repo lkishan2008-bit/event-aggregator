@@ -139,6 +139,33 @@ class EventSource(db.Model):
     organizer = db.relationship("User")
 
 
+class OrganizerVerification(db.Model):
+    """An organizer proved they own an official college email (e.g. name@rvce.edu.in)."""
+    __tablename__ = "organizer_verifications"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, unique=True)
+    email = db.Column(db.String(255), nullable=False)      # the official email being verified
+    verified_at = db.Column(db.DateTime)                   # None until the code is confirmed
+
+    @property
+    def domain(self):
+        return self.email.split("@")[-1]
+
+
+class EventReport(db.Model):
+    """A user reported an event as fake, wrong or spam. One report per user per event."""
+    __tablename__ = "event_reports"
+    __table_args__ = (db.UniqueConstraint("user_id", "event_id", name="uq_report_user_event"),)
+
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    reason = db.Column(db.String(30), nullable=False)
+    details = db.Column(db.String(500))
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+
 class OtpCode(db.Model):
     """A one-time code emailed to the user. Only a hash of the code is stored."""
     __tablename__ = "otp_codes"

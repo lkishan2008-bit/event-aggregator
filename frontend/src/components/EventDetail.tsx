@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import RegisterBox from "@/components/RegisterBox";
+import ReportEvent from "@/components/ReportEvent";
 import { calendarUrl, directionsUrl, EventItem, fetchEvent, formatPrice, formatTimeRange, posterColor } from "@/lib/events";
 
 export default function EventDetail({ id }: { id: string }) {
@@ -28,7 +29,7 @@ export default function EventDetail({ id }: { id: string }) {
     }
   }
 
-  const back = <Link href="/" className="text-sm text-muted hover:text-night">← All events</Link>;
+  const back = <Link href="/" className="text-sm text-muted hover:text-night">{"\u2190"} All events</Link>;
 
   if (status === "loading") {
     return (
@@ -85,7 +86,14 @@ export default function EventDetail({ id }: { id: string }) {
             {event.organizer && (
               <div>
                 <p className="text-muted">Organized by</p>
-                <p className="mt-0.5 font-medium text-night">{event.organizer.name}</p>
+                <p className="mt-0.5 font-medium text-night">
+                  {event.organizer.name}
+                  {event.organizer.verified_domain && (
+                    <span className="ml-2 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-800" title={`Verified with an @${event.organizer.verified_domain} email`}>
+                      {"\u2713"} Verified {"\u00b7"} {event.organizer.verified_domain}
+                    </span>
+                  )}
+                </p>
               </div>
             )}
           </section>
@@ -121,6 +129,7 @@ export default function EventDetail({ id }: { id: string }) {
           <button onClick={share} className="w-full rounded-full border border-line py-3 text-sm font-medium text-night hover:border-muted">
             {copied ? "Link copied" : "Share"}
           </button>
+          <ReportEvent eventId={event.id} />
         </aside>
       </div>
     </main>

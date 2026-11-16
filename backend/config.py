@@ -44,6 +44,11 @@ class Config:
 
 
 class TestConfig(Config):
+    """Tests never use real keys or services, whatever is in .env."""
     TESTING = True
-    FEED_SYNC_MINUTES = 0
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    FEED_SYNC_MINUTES = 0
+    SES_SENDER = ""
+    RAZORPAY_KEY_ID = ""
+    RAZORPAY_KEY_SECRET = ""
+    CRON_SECRET = ""

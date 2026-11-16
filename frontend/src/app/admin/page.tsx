@@ -62,13 +62,26 @@ function Review() {
               <div className="min-w-0">
                 <h2 className="font-display text-lg font-bold text-night">{e.title}</h2>
                 <p className="text-sm text-muted">
-                  {formatEventTime(e)} · {e.venue?.name}, {e.venue?.city} · {formatPrice(e)} · <span className="capitalize">{e.category}</span>
+                  {formatEventTime(e)} {"\u00b7"} {e.venue?.name}, {e.venue?.city} {"\u00b7"} {formatPrice(e)} {"\u00b7"} <span className="capitalize">{e.category}</span>
                 </p>
-                <p className="text-sm text-muted">By {e.organizer?.name ?? "unknown"}</p>
+                <p className="text-sm text-muted">By {e.organizer?.name ?? "unknown"}{e.organizer?.verified_domain ? ` \u00b7 verified @${e.organizer.verified_domain}` : ""}</p>
               </div>
               <StatusBadge status={e.status} />
             </div>
             {e.description && <p className="mt-2 line-clamp-3 text-sm text-night">{e.description}</p>}
+
+            {(e.reports ?? 0) > 0 && (
+              <p className="mt-2 text-sm font-medium text-red-700">Reported by {e.reports} user{e.reports === 1 ? "" : "s"}</p>
+            )}
+            {e.red_flags && e.red_flags.length > 0 && (
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {e.red_flags.map((f) => (
+                  <li key={f} className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${f.startsWith("Organizer is not verified") ? "bg-line text-muted" : "bg-red-50 text-red-700"}`}>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <div className="mt-3 flex flex-wrap gap-2">
               {e.status !== "approved" && (
@@ -95,7 +108,10 @@ export default function AdminPage() {
     <RoleGate roles={["admin"]}>
       {() => (
         <main className="mx-auto max-w-4xl px-4 pt-6 md:px-6 md:pt-10">
-          <div className="flex flex-wrap items-end justify-between gap-3"><h1 className="font-display text-3xl font-bold text-night">Review events</h1><Link href="/admin/sources" className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-night hover:border-muted">Event feeds</Link></div>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <h1 className="font-display text-3xl font-bold text-night">Review events</h1>
+            <Link href="/admin/sources" className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-night hover:border-muted">Event feeds</Link>
+          </div>
           <p className="mb-5 mt-1 text-sm text-muted">Approve events to publish them in the feed. Rejected events stay hidden.</p>
           <Review />
         </main>

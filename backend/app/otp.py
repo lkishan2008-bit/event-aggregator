@@ -29,8 +29,8 @@ def seconds_until_resend(user, purpose):
     return max(0, int(wait) + 1) if wait > 0 else 0
 
 
-def issue_otp(user, purpose):
-    """Create a new 6-digit code, invalidate older ones, and email it."""
+def issue_otp(user, purpose, to=None):
+    """Create a new 6-digit code, invalidate older ones, and email it (to the account email unless `to` is given)."""
     for old in OtpCode.query.filter_by(user_id=user.id, purpose=purpose, used=False):
         old.used = True
 
@@ -42,9 +42,10 @@ def issue_otp(user, purpose):
     ))
     db.session.commit()
 
-    action = "finish creating your account" if purpose == "signup" else "log in"
+    action = {"signup": "finish creating your account", "login": "log in",
+              "org_verify": "verify your organizer account"}.get(purpose, "continue")
     send_email(
-        user.email,
+        to or user.email,
         f"Your verification code: {code}",
         f"Hi {user.name},\n\nYour code to {action} is {code}.\n"
         f"It expires in 10 minutes. If you didn't try to {action}, you can ignore this email.",
