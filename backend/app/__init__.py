@@ -18,10 +18,12 @@ def create_app(config_class=Config):
     from .auth import bp as auth_bp
     from .events import bp as events_bp
     from .registrations import bp as registrations_bp
+    from .checkin import bp as checkin_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(events_bp)
     app.register_blueprint(registrations_bp)
+    app.register_blueprint(checkin_bp)
 
     @app.get("/api/health")
     def health():

@@ -24,14 +24,14 @@ function PassCard({ reg }: { reg: Registration }) {
           {e.venue && <p className="mt-1 text-sm text-white/80">{e.venue.name}, {e.venue.city}</p>}
           <p className="mt-3 text-sm">
             {reg.checked_in_at
-              ? <span className="text-green-400">✓ Checked in</span>
-              : <span className="text-accent">● Show this QR code at the entrance</span>}
+              ? <span className="text-green-400">{"\u2713"} Checked in</span>
+              : <span className="text-accent">{"\u25cf"} Show this QR code at the entrance</span>}
           </p>
         </div>
       </div>
       <div className="flex items-center justify-between border-t border-dashed border-white/20 px-5 py-3 text-xs text-white/60">
-        <span>Pass #{reg.id}</span>
-        <Link href={`/events/${e.id}`} className="font-medium text-white underline">Event details</Link>
+        <span className="min-w-0 truncate">Pass #{reg.id} {"\u00b7"} <span className="select-all font-mono">{reg.qr_token}</span></span>
+        <Link href={`/events/${e.id}`} className="ml-3 shrink-0 font-medium text-white underline">Event details</Link>
       </div>
     </article>
   );
@@ -43,10 +43,13 @@ function Passes() {
 
   useEffect(() => {
     let cancelled = false;
-    getMyPasses()
-      .then((p) => { if (!cancelled) setPasses(p); })
-      .catch((e) => { if (!cancelled) setError(e.message); });
-    return () => { cancelled = true; };
+    const load = () =>
+      getMyPasses()
+        .then((p) => { if (!cancelled) setPasses(p); })
+        .catch((e) => { if (!cancelled) setError(e.message); });
+    load();
+    const timer = setInterval(load, 5000); // live: flips to "Checked in" right after the gate scan
+    return () => { cancelled = true; clearInterval(timer); };
   }, []);
 
   if (error) return <p className="rounded-2xl border border-line bg-white px-4 py-10 text-center text-sm text-muted">{error}</p>;

@@ -31,7 +31,11 @@ def client(app):
 def last_code(app, email):
     """Read the most recent OTP emailed to this address (tests keep emails in memory)."""
     mails = [m for m in app.extensions.get("outbox", []) if m["to"] == email]
-    return re.search(r"\b(\d{6})\b", mails[-1]["subject"]).group(1)
+    for m in reversed(mails):  # skip other emails like "You're going"
+        found = re.search(r"\b(\d{6})\b", m["subject"])
+        if found:
+            return found.group(1)
+    raise AssertionError(f"no code emailed to {email}")
 
 
 class Auth:

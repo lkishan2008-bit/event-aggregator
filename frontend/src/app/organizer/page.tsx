@@ -35,12 +35,15 @@ function MyEvents() {
         <li key={e.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="truncate font-medium text-night">{e.title}</p>
-            <p className="text-xs text-muted">{formatEventTime(e)} · {e.venue?.name}</p>
+            <p className="text-xs text-muted">{formatEventTime(e)} {"\u00b7"} {e.venue?.name}</p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <span className="text-xs text-muted">{e.going} going</span>
             <StatusBadge status={e.status} />
             {e.status === "approved" && <Link href={`/events/${e.id}`} className="text-sm font-medium text-night underline">View</Link>}
+            {e.status === "approved" && (
+              <Link href={`/organizer/checkin?event=${e.id}`} className="rounded-full bg-night px-3 py-1 text-xs font-medium text-white">Check-in</Link>
+            )}
           </div>
         </li>
       ))}

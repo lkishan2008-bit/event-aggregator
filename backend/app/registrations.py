@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, current_app, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
+from .email import send_email
 from .events import _going_counts, serialize_event
 from .extensions import db
-from .models import Event, Registration
+from .models import Event, Registration, User
 from .utils import error, to_iso_utc, utcnow_naive
 
 bp = Blueprint("registrations", __name__, url_prefix="/api")
@@ -21,6 +22,22 @@ def serialize_registration(reg, include_event=True):
         event = db.session.get(Event, reg.event_id)
         data["event"] = serialize_event(event, _going_counts([event.id]).get(event.id, 0))
     return data
+
+
+def _send_confirmation(user_id, event):
+    """Email the 'you're going' confirmation. A failed email never breaks the registration."""
+    user = db.session.get(User, user_id)
+    when = event.start_utc.strftime("%d %b %Y, %H:%M UTC")
+    where = f"{event.venue.name}, {event.venue.city}" if event.venue else "See the event page"
+    text = (
+        f"Hi {user.name},\n\nYou're registered for {event.title}.\n\n"
+        f"When: {when}\nWhere: {where}\n\n"
+        "Open the Passes tab in the app and show your QR code at the entrance.\n"
+    )
+    try:
+        send_email(user.email, f"You're going: {event.title}", text)
+    except Exception as exc:  # e.g. SES sandbox refuses an unverified address
+        current_app.logger.warning("confirmation email failed: %s", exc)
 
 
 def _event_is_open(event):
@@ -49,6 +66,7 @@ def register(event_id):
         reg = Registration(user_id=user_id, event_id=event_id)
         db.session.add(reg)
     db.session.commit()
+    _send_confirmation(user_id, event)
     return jsonify({"registration": serialize_registration(reg)}), 201
 
 
