@@ -31,6 +31,10 @@ class Config:
     SES_SENDER = os.getenv("SES_SENDER", "").strip()
     AWS_REGION = os.getenv("AWS_REGION", "ap-south-1")
 
+    # Razorpay (paid tickets). Leave both empty to use a fake "test payment" screen for demos.
+    RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "").strip()
+    RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "").strip()
+
     CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
 
 

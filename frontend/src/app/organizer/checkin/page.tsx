@@ -97,6 +97,14 @@ function Scanner({ eventId }: { eventId: number }) {
             </div>
           )}
         </div>
+        {stats && stats.revenue > 0 && (
+          <div>
+            <p className="text-sm text-muted">Ticket sales</p>
+            <p className="font-display text-2xl font-bold text-night">
+              {new Intl.NumberFormat("en-IN", { style: "currency", currency: stats.currency, maximumFractionDigits: 0 }).format(stats.revenue)}
+            </p>
+          </div>
+        )}
         <div>
           <p className="mb-2 text-sm font-medium text-night">Latest arrivals</p>
           {stats?.recent.length ? (

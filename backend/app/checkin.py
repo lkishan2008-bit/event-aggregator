@@ -68,5 +68,7 @@ def stats(event_id):
         "event": {"id": event.id, "title": event.title},
         "going": len(regs),
         "checked_in": len(arrived),
+        "revenue": float(sum((r.amount_paid or 0) for r in regs)),
+        "currency": event.currency,
         "recent": [_attendee(r) for r in arrived[:10]],
     })

@@ -54,7 +54,7 @@ class User(db.Model):
             "city": self.city,
             "timezone": self.timezone,
             "language": self.language,
-                        "email_verified": bool(self.email_verified),
+            "email_verified": bool(self.email_verified),
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -111,11 +111,14 @@ class Registration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey("events.id"), nullable=False)
-    status = db.Column(db.String(20), default="registered")  # registered, cancelled
+    status = db.Column(db.String(20), default="registered")  # registered, pending_payment, cancelled
+    amount_paid = db.Column(db.Numeric(12, 2), default=0)    # 0 for free events
+    payment_order_id = db.Column(db.String(64), index=True)  # Razorpay order for paid events
+    payment_id = db.Column(db.String(64))                    # Razorpay payment, set after a verified payment
     qr_token = db.Column(db.String(64), unique=True, default=lambda: secrets.token_urlsafe(24))
     checked_in_at = db.Column(db.DateTime(timezone=True))   # set when QR is scanned at the gate
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
-    
+
 
 class OtpCode(db.Model):
     """A one-time code emailed to the user. Only a hash of the code is stored."""

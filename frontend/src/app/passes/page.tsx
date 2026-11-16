@@ -4,7 +4,7 @@ import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { useEffect, useState } from "react";
 import RoleGate from "@/components/RoleGate";
-import { formatTimeRange } from "@/lib/events";
+import { formatPrice, formatTimeRange } from "@/lib/events";
 import { getMyPasses, Registration } from "@/lib/registrations";
 
 function PassCard({ reg }: { reg: Registration }) {
@@ -14,7 +14,7 @@ function PassCard({ reg }: { reg: Registration }) {
     <article className="overflow-hidden rounded-2xl bg-night text-white">
       <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center">
         <div className="rounded-xl bg-white p-3 self-center">
-          <QRCodeSVG value={reg.qr_token} size={148} level="M" />
+          <QRCodeSVG value={reg.qr_token ?? ""} size={148} level="M" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-xs uppercase tracking-wide text-white/60">Your pass</p>
@@ -22,6 +22,7 @@ function PassCard({ reg }: { reg: Registration }) {
           <p className="mt-2 text-sm text-white/80">{day}</p>
           <p className="text-sm text-white/80">{time}</p>
           {e.venue && <p className="mt-1 text-sm text-white/80">{e.venue.name}, {e.venue.city}</p>}
+          {reg.amount_paid > 0 && <p className="mt-1 text-sm text-white/80">Paid {formatPrice(e)}</p>}
           <p className="mt-3 text-sm">
             {reg.checked_in_at
               ? <span className="text-green-400">{"\u2713"} Checked in</span>

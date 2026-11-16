@@ -103,7 +103,7 @@ export default function EventDetail({ id }: { id: string }) {
             <span className="text-sm text-muted">{event.going.toLocaleString("en-IN")} going</span>
           </div>
 
-          <RegisterBox eventId={event.id} onGoingChange={(going) => setEvent({ ...event, going })} />
+          <RegisterBox event={event} onGoingChange={(going) => setEvent({ ...event, going })} />
           {event.registration_url && (
             <a href={event.registration_url} target="_blank" rel="noopener noreferrer" className="block w-full rounded-full border border-line py-3 text-center text-sm font-medium text-night hover:border-muted">
               Organizer&apos;s website

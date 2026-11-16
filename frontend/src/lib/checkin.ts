@@ -8,7 +8,7 @@ export type CheckinResult = {
   message: string;
   attendee?: Attendee;
 };
-export type CheckinStats = { event: { id: number; title: string }; going: number; checked_in: number; recent: Attendee[] };
+export type CheckinStats = { event: { id: number; title: string }; going: number; checked_in: number; revenue: number; currency: string; recent: Attendee[] };
 
 export async function checkIn(eventId: number, code: string): Promise<CheckinResult> {
   try {
