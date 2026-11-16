@@ -133,3 +133,24 @@ export const PASSWORD_RULES = [
     { label: "A number", test: (p: string) => /\d/.test(p) },
     { label: "A symbol (like @ # !)", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
 ];
+
+/** Call the backend as the logged-in user (adds the login token). Throws an Error with a readable message. */
+export async function apiFetch(path: string, init: RequestInit = {}) {
+    const session = read();
+    const headers = new Headers(init.headers);
+    headers.set("Content-Type", "application/json");
+    if (session) headers.set("Authorization", `Bearer ${session.token}`);
+    let res: Response;
+    try {
+        res = await fetch(`${API_URL}${path}`, { ...init, headers });
+    } catch {
+        throw new Error("Couldn't reach the server. Check that the backend is running.");
+    }
+    if (res.status === 401) {
+        save(null);
+        throw new Error("Your session expired. Log in again.");
+    }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error ?? "Something went wrong. Try again.");
+    return data;
+}

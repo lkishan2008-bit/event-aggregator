@@ -18,6 +18,7 @@ export type EventItem = {
   registration_url: string | null;
   venue: { name: string; address: string | null; city: string; country_code: string; latitude?: number | null; longitude?: number | null } | null;
   organizer?: { id: number; name: string } | null;
+  status?: "pending" | "approved" | "rejected" | "cancelled" | "completed";
   going: number;
 };
 
