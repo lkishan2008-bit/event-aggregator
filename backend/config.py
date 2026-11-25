@@ -30,6 +30,10 @@ class Config:
     # Amazon SES (leave SES_SENDER empty to print emails in the terminal instead)
     SES_SENDER = os.getenv("SES_SENDER", "").strip()
     AWS_REGION = os.getenv("AWS_REGION", "ap-south-1")
+    
+    # Gmail SMTP for OTP emails to any address (app password from Google Account -> App passwords)
+    GMAIL_USER = os.getenv("GMAIL_USER", "").strip()
+    GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "").replace(" ", "").strip()
 
     # Razorpay (paid tickets). Leave both empty to use a fake "test payment" screen for demos.
     RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "").strip()
@@ -56,3 +60,5 @@ class TestConfig(Config):
     RAZORPAY_KEY_SECRET = ""
     CRON_SECRET = ""
     TICKETMASTER_API_KEY = ""
+    GMAIL_USER = ""
+    GMAIL_APP_PASSWORD = ""
