@@ -8,5 +8,6 @@ psycopg2-binary==2.9.11
 tzdata>=2025.3
 boto3==1.44.3
 icalendar==7.3.0
-pytest==8.3.3gunicorn==23.0.0
+pytest==8.3.3
+gunicorn==23.0.0
 gunicorn==23.0.0
