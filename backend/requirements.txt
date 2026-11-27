@@ -10,4 +10,3 @@ boto3==1.44.3
 icalendar==7.3.0
 pytest==8.3.3
 gunicorn==23.0.0
-gunicorn==23.0.0
