@@ -89,7 +89,7 @@ export default function EventFeed() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search hackathons, fests, venues"
+          placeholder="Search festivals, events, venues"
           className="min-w-0 flex-1 rounded-xl border border-line bg-white px-4 py-2.5 text-sm outline-none focus:border-ink md:max-w-xl"
         />
       </div>

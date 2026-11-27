@@ -129,14 +129,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <main className="px-4 pt-10">
             <h1 className="font-display text-3xl font-bold text-night">{isSignup ? "Create your account" : "Welcome back"}</h1>
             <p className="mt-1 text-sm text-muted">
-                {isSignup ? "Find every student event in your city." : "Log in to register for events."}
+                {isSignup ? "Discover local festivals and events near you." : "Log in to register for events."}
             </p>
 
             <form onSubmit={onSubmitDetails} className="mt-6 space-y-3" noValidate>
                 {isSignup && (
                     <input className={input} placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
                 )}
-                <input className={input} type="email" placeholder="you@college.edu" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+                <input className={input} type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
                 <div className="relative">
                     <input
                         className={`${input} pr-12`}
@@ -181,7 +181,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
                                 onClick={() => setRole(r)}
                                 className={`rounded-xl border px-3 py-2.5 text-sm font-medium ${role === r ? "border-ink bg-ink text-white" : "border-line bg-white text-night"}`}
                             >
-                                {r === "student" ? "I'm a student" : "I organize events"}
+                                {r === "student" ? "I'm attending" : "I organize events"}
                             </button>
                         ))}
                     </div>

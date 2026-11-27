@@ -27,7 +27,11 @@ export type EventItem = {
 
 export const CATEGORIES = [
   { key: "all", label: "All" },
-  { key: "fest", label: "Fests" },
+  { key: "festival", label: "Festivals" },
+  { key: "temple", label: "Temple fairs" },
+  { key: "market", label: "Markets" },
+  { key: "community", label: "Community" },
+  { key: "fest", label: "College fests" },
   { key: "hackathon", label: "Hackathons" },
   { key: "workshop", label: "Workshops" },
   { key: "meetup", label: "Meetups" },

@@ -14,7 +14,7 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "event-aggregator",
-  description: "Every student event in your city, in one feed.",
+  description: "Local festivals, fairs and events near you, in one feed.",
 };
 
 export const viewport: Viewport = {

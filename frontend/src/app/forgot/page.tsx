@@ -50,7 +50,7 @@ export default function ForgotPage() {
       {step === "email" && (
         <form onSubmit={sendCode} className="mt-6 space-y-4">
           <p className="text-sm text-muted">Enter your account email. We&apos;ll send you a 6-digit code.</p>
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@college.edu.in" className={input} />
+          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className={input} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button disabled={busy} className={primary}>{busy ? "Sending\u2026" : "Send code"}</button>
         </form>

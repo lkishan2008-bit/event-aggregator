@@ -79,7 +79,7 @@ function Sources() {
       {!sources ? (
         <div className="h-32 animate-pulse rounded-2xl bg-line/60" />
       ) : sources.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-line px-4 py-8 text-center text-sm text-muted">No feeds yet. Add a college or club calendar below.</p>
+        <p className="rounded-2xl border border-dashed border-line px-4 py-8 text-center text-sm text-muted">No feeds yet. Add a community, temple, club or college calendar below.</p>
       ) : (
         <ul className="space-y-3">
           {sources.map((s) => (
@@ -174,7 +174,7 @@ export default function SourcesPage() {
         <main className="mx-auto max-w-4xl px-4 pt-6 md:px-6 md:pt-10">
           <Link href="/admin" className="text-sm text-muted hover:text-night">{"\u2190"} Review events</Link>
           <h1 className="mt-2 font-display text-3xl font-bold text-night">Event feeds</h1>
-          <p className="mb-5 mt-1 text-sm text-muted">Import events automatically from public college, club and community calendars.</p>
+          <p className="mb-5 mt-1 text-sm text-muted">Import events automatically from public community, temple, club and college calendars.</p>
           <Sources />
         </main>
       )}

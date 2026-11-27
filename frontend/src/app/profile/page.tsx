@@ -10,7 +10,7 @@ function memberSince(iso?: string | null) {
 }
 
 const ROLE_INFO: Record<User["role"], { title: string; text: string }> = {
-  student: { title: "Student", text: "Register for events and keep your passes here." },
+  student: { title: "Attendee", text: "Discover local festivals and events, register, and keep your passes here." },
   organizer: { title: "Organizer", text: "Submit events and track their approval. Soon: registrations and QR check-in." },
   admin: { title: "Admin", text: "Review and approve events submitted by organizers." },
 };
